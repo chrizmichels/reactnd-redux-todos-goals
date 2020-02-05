@@ -139,6 +139,7 @@
         };
       } */
 
+      //Middelware START
       const checker = store => next => action => {
         if (
           action.type === ADD_TODO &&
@@ -155,19 +156,42 @@
         return next(action);
       };
 
+      const logger = store => next => action => {
+        console.group(action.type);
+        console.log("The Action: ", action);
+        const result = next(action);
+        console.log("The new state: ", store.getState());
+        console.groupEnd();
+        return result;
+      };
+
+      const great = store => next => action => {
+        if (action.type === ADD_TODO) {
+          alert(
+            `Don't forget to ${action.todo.name} whenever new todo item is added.`
+          );
+        }
+        if (action.type === ADD_GOAL) {
+          alert("That's a great goal");
+        }
+        return next(action);
+      };
+
+      //Middelware END
+
       const store = Redux.createStore(
         Redux.combineReducers({
           todos,
           goals
         }),
-        Redux.applyMiddleware(checker)
+        Redux.applyMiddleware(checker, logger, great)
       );
 
       store.subscribe(() => {
-        console.log("The new state is: ", store.getState());
+        //console.log("The new state is: ", store.getState());
         const { goals, todos } = store.getState();
-        console.log("Goals", goals);
-        console.log("Todos", todos);
+        //console.log("Goals", goals);
+        //console.log("Todos", todos);
 
         document.getElementById("goals").innerHTML = "";
         document.getElementById("todos").innerHTML = "";
